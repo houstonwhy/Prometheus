@@ -3,7 +3,7 @@
 <!-- 
 [Jiahao Shao*](https://jhaoshao.github.io/), Yuanbo Yang*, Hongyu Zhou, [Youmin Zhang](https://youmi-zym.github.io/),  [Yujun Shen](https://shenyujun.github.io/), [Vitor Guizilini](https://vitorguizilini.github.io/), [Yue Wang](https://yuewang.xyz/), [Matteo Poggi](https://mattpoggi.github.io/), [Yiyi Liao](https://yiyiliao.github.io/ ) -->
 
-[![Website](https://img.shields.io/badge/Webpage-🔥Prometheus-orange)](https://freemty.github.io/project-prometheus/) [![Paper](https://img.shields.io/badge/arXiv-PDF-b31b1b)](https://arxiv.org/pdf/2412.21117)
+[![Website](https://img.shields.io/badge/🔥website-Prometheus-orange)](https://freemty.github.io/project-prometheus/) [![Paper](https://img.shields.io/badge/arXiv-PDF-b31b1b)](https://arxiv.org/pdf/2412.21117)
 
  <!-- [![Hugging Face Space](https://img.shields.io/badge/🤗%20Hugging%20Face-Space-yellow)](https://huggingface.co/spaces/jhshao/ChronoDepth)
 [![Hugging Face Model](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-green)](https://huggingface.co/jhshao/ChronoDepth-v1) -->
