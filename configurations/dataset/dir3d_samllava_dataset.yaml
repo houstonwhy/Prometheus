@@ -1,0 +1,100 @@
+defaults:
+  - base_dataset
+
+train:
+  module: prometheus.datasets.JointDataset
+  args:
+    datasets: 
+      - 
+        module: prometheus.datasets.ProbDataset
+        args:
+          datasets:
+            - 
+              module: prometheus.datasets.DL3DV10KDataset
+              args:
+                root_dir: ${DL3DV_PATH}
+                annotation_path: ${DL3DV_MATADATA_PATH}
+                annotation_meta: metadata/dl3dv_full.pkl
+                img_size: ${image_size}
+                normalized_cameras: True
+                use_caption: True
+                drop_text_p: 0.
+                num_input_views: ${experiment.training.num_input_views}
+                num_novel_views: ${experiment.training.num_novel_views}
+                sample_rate: 8
+            - 
+              module: prometheus.datasets.MVImgNetDataset
+              args:
+                root_dir: ${MVImgNet_PATH}
+                annotation_path: ${MVImgNet_MATADATA_PATH}
+                annotation_meta: metadata/mvimgnet_full.pkl
+                img_size: ${image_size}
+                normalized_cameras: True
+                use_caption: True
+                drop_text_p: 0.
+                num_input_views: ${experiment.training.num_input_views}
+                num_novel_views: ${experiment.training.num_novel_views}
+                sample_rate: 4
+          probs: [0.5,0.5]
+      - 
+        module: prometheus.datasets.Text2ImageDataset
+        args:
+          # img_size: 256
+          # root_path: /cpfs01/user/lixinyang/datasets/laion2B-en-aesthetic-data
+          # drop_text_p: 0.1
+          # images_per_iter: 8
+          root_dir: ${SAM_1B_PATH}
+          csv_file: ${SAM_1B_MATADATA_PATH}
+          resolution: ${image_size}
+          images_per_iter:  ${experiment.training.num_novel_views}
+          cfg_prob: 0.1
+          dataset_name: 'SAM1B'
+
+val:
+  module: prometheus.datasets.JointDataset
+  args:
+    datasets: 
+      - 
+        module: prometheus.datasets.ProbDataset
+        args:
+          datasets:
+            - 
+              module: prometheus.datasets.DL3DV10KDataset
+              args:
+                root_dir: ${DL3DV_PATH}
+                annotation_path: ${DL3DV_MATADATA_PATH}
+                annotation_meta: metadata/dl3dv_full.pkl
+                img_size: ${image_size}
+                normalized_cameras: True
+                use_caption: True
+                drop_text_p: 0.
+                num_input_views: ${experiment.training.num_input_views}
+                num_novel_views: ${experiment.training.num_novel_views}
+                sample_rate: 8
+            - 
+              module: prometheus.datasets.MVImgNetDataset
+              args:
+                root_dir: ${MVImgNet_PATH}
+                annotation_path: ${MVImgNet_MATADATA_PATH}
+                annotation_meta: metadata/mvimgnet_full.pkl
+                img_size: ${image_size}
+                normalized_cameras: True
+                use_caption: True
+                drop_text_p: 0.
+                num_input_views: ${experiment.training.num_input_views}
+                num_novel_views: ${experiment.training.num_novel_views}
+                sample_rate: 4
+          probs: [0.5,0.5]
+      - 
+        module: prometheus.datasets.Text2ImageDataset
+        args:
+          # img_size: 256
+          # root_path: /cpfs01/user/lixinyang/datasets/laion2B-en-aesthetic-data
+          # drop_text_p: 0.1
+          # images_per_iter: 8
+          root_dir: ${SAM_1B_PATH}
+          csv_file: ${SAM_1B_MATADATA_PATH}
+          resolution: ${image_size}
+          images_per_iter:  ${experiment.training.num_novel_views}
+          cfg_prob: 0.1
+          dataset_name: 'SAM1B'

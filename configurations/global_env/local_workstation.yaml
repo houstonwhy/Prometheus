@@ -1,0 +1,48 @@
+# @package _global_
+
+name: "prometheus"
+# GLOBAL PATH
+output_dir: ./workdir
+# datasets path
+# single view
+SAM_1B_PATH: /data1/yyb/datasets/SAM_1B
+JourneyDB_PATH: /data1/yyb/datasets/JourneyDB
+# multi view
+DL3DV_PATH: /data1/yyb/datasets/DL3DV-10K
+MVImgNet_PATH: /data1/yyb/datasets/MVImgNet
+UrbanGen_PATH: /data1/yyb/datasets/UrbanGen/datasets4training/urban/zip4train/urbangiraffe_kitti-360_semantic-kitti_nuscenes_waymo_train.zip
+RealEstate10K_PATH: /data1/yyb/datasets/re10k_subset
+ACID_PATH: /data1/yyb/datasets/acid
+Objaverse_PATH: /data1/yyb/datasets/objaverse_render
+
+# datasets from DUSt3R
+# MegaDepth_PATH: /data1/yyb/datasets/re10k_subset
+# BlenderMVS_PATH: /data1/yyb/datasets/re10k_subset
+# ArKit_PATH: /data1/yyb/datasets/re10k_subset
+# ScanNetPP_PATH: /data1/yyb/datasets/re10k_subset
+# CO3D_PATH: /data1/yyb/datasets/re10k_subset
+# metadta path
+SAM_1B_MATADATA_PATH: /data1/yyb/PlatonicGen/data/SAM_1B/local_tiny/metadata
+MVImgNet_MATADATA_PATH: /data1/yyb/PlatonicGen/data/MVImgNet/local_tiny/metadata
+DL3DV_MATADATA_PATH: /data1/yyb/PlatonicGen/data/DL3DV-10K/local_tiny/metadata
+UrbanGen_MATADATA_PATH: /data1/yyb/PlatonicGen/data/UrbanGen/metadata
+RealEstate10K_MATADATA_PATH: /data1/yyb/PlatonicGen/data/RealEstate10K/local_tiny/metadata
+Objaverse_MATADATA_PATH: /data1/yyb/PlatonicGen/data/Objaverse
+JourneyDB_MATADATA_PATH: /data1/yyb/PlatonicGen/data/JourneyDB/local_tiny/metadata
+
+PRETRAINED_PATH: /data1/yyb/PlatonicGen/pretrained
+HF_PATH: /data0/hf_weights
+GPUS: [0,1]
+experiment:
+  training:
+    # config.yaml: [0,1]
+    precision: bf16-mixed
+    batch_size: 1
+    log_every_n_step: 100
+    # single_view_num: 1 # how many signle view data paire with one multiview scene
+
+wandb:
+  mode: online # set wandb logging to online, offline or dryrun
+     
+
+dataset_name: full # for caption

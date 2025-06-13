@@ -1,0 +1,67 @@
+#24-11-2
+defaults:
+  - base_pytorch
+
+# following raw LDM training settings  https://github.com/huggingface/diffusers/tree/main/examples/custom_diffusion
+image_size: 256
+
+noise_type: 'vanilla' # vanilla, diffusion_forcing
+scheduler_type: 'vprediction' # edm, vprediction, eprediction
+timestep_type: 'continuous' # discrete, continuous
+
+training:
+  task_type: 'image_to_3d'
+  module: prometheus.systems.MVLDMSystem
+  # precision: bf16-mixed
+  learning_rate: 1e-5 # same as sd14
+  # resume_weights_only: True
+  log_every_n_step: 1000
+  # gsdecoder_path: ${PRETRAINED_PATH}/epoch=215-step=215999.ckpt
+  gsdecoder_path: ${PRETRAINED_PATH}/gsdecoder/epoch=4-step=4999.ckpt # emanorm version
+  # gsdecoder_path: ${PRETRAINED_PATH}/gsdecoder/epoch=383-step=383999.ckpt
+  mvldm_path: ${PRETRAINED_PATH}/mvldm/epoch=121-step=122000.ckpt # exp12a
+  #sd_model_key: ${HF_PATH}/stabilityai/stable-diffusion-2-1
+  sd_model_key: ${HF_PATH}/stabilityai/stable-diffusion-2-1
+  # unet_pretrained_path: ${HF_PATH}/stabilityai/stable-diffusion-2-1-base/v2-1_512-ema-pruned.ckpt
+  #max_steps: 100000
+  steps_per_epoch: 1000
+  high_noise_level: False
+  weight_decay: 1e-4 #  same as sd14
+  betas: [0.9, 0.95] # same as sd14
+  accumulate_grad_batches: 2
+  single_view_num: 0 # num of 2d data per iteratiion
+  batch_size: 2 # full bs=8*8=64 by default
+  random_ref_num: False
+  num_input_views: 8 #
+  num_novel_views: 0
+  noise_type: 'view_cond' # vanilla, diffusion_forcing
+  # scheduler_type: 'vprediction' # 'ddim' or 'edm'
+  # prediction_type: 'sample' # ddim only support x0 prediction
+  # for view_c
+  gradient_clip_val: 0.1
+  num_workers: 12
+  num_ref_views: 1
+  num_pred_views: 7
+  use_gsdecoder: True
+  tune_decoder_only: False
+  rendering_batch_size: 2
+
+  check_val_every_n_epoch: 100
+  resume_from_checkpoint: "latest"
+  text_to_3d_drop_text_p: 0.1
+  drop_pose_p: 0.1 # text_to_3d_drop_text_p * x
+  image_to_3d_drop_image_p: 0.1
+  image_to_3d_drop_pose_p: 0.1 # image_to_3d_drop_image_p * x
+
+validation:
+  batch_size: 4
+
+losses:
+  lambda_sv_latent_mse: 1.
+  lambda_sv_latent_mse_depth: 1.
+  lambda_mv_latent_mse: 1
+  lambda_mv_latent_mse_depth: 1.
+  #
+  lambda_gs_image_mse: 1.
+  lambda_gs_image_lpips: 1.
+  lambda_gs_depth: 1.

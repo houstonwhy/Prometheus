@@ -1,0 +1,22 @@
+# @package _global_
+defaults:
+  - base_cluster
+name: "prometheus_k8s"
+
+GPUS: [0,1,2,3,4,5,6,7]
+
+dataset_name: full # for caption
+# experiment:
+#   training:
+#     precision: 16 # set float precision, 16-mixed is faster while 32 is more stable
+#     batch_size: 1
+#     accumulate_grad_batches: 8
+#     num_workers: 8
+#     # config.yaml: [0,1]
+#     num_input_views: 8
+#     num_novel_views: 8
+
+# wandb:
+#   mode: dryrun # set wandb logging to online, offline or dryrun
+#   project: ${name} # wandb project name; if not provided, defaults to root 
+

@@ -1,0 +1,321 @@
+import argparse
+from pathlib import Path
+from tqdm.auto import tqdm
+import numpy as np
+import scipy.misc
+import scipy.io
+from os.path import dirname
+from os.path import join
+import scipy
+from PIL import Image
+import numpy as np
+import scipy.ndimage
+import numpy as np
+import scipy.special
+import math
+import cv2
+import json
+from brisque import BRISQUE
+import torch
+
+from kiui.cli.clip_sim_text import CLIP
+
+import ipdb
+st=ipdb.set_trace
+
+
+gamma_range = np.arange(0.2, 10, 0.001)
+a = scipy.special.gamma(2.0/gamma_range)
+a *= a
+b = scipy.special.gamma(1.0/gamma_range)
+c = scipy.special.gamma(3.0/gamma_range)
+prec_gammas = a/(b*c)
+
+def aggd_features(imdata):
+    #flatten imdata
+    imdata.shape = (len(imdata.flat),)
+    imdata2 = imdata*imdata
+    left_data = imdata2[imdata<0]
+    right_data = imdata2[imdata>=0]
+    left_mean_sqrt = 0
+    right_mean_sqrt = 0
+    if len(left_data) > 0:
+        left_mean_sqrt = np.sqrt(np.average(left_data))
+    if len(right_data) > 0:
+        right_mean_sqrt = np.sqrt(np.average(right_data))
+
+    if right_mean_sqrt != 0:
+      gamma_hat = left_mean_sqrt/right_mean_sqrt
+    else:
+      gamma_hat = np.inf
+    #solve r-hat norm
+
+    imdata2_mean = np.mean(imdata2)
+    if imdata2_mean != 0:
+      r_hat = (np.average(np.abs(imdata))**2) / (np.average(imdata2))
+    else:
+      r_hat = np.inf
+    rhat_norm = r_hat * (((math.pow(gamma_hat, 3) + 1)*(gamma_hat + 1)) / math.pow(math.pow(gamma_hat, 2) + 1, 2))
+
+    #solve alpha by guessing values that minimize ro
+    pos = np.argmin((prec_gammas - rhat_norm)**2);
+    alpha = gamma_range[pos]
+
+    gam1 = scipy.special.gamma(1.0/alpha)
+    gam2 = scipy.special.gamma(2.0/alpha)
+    gam3 = scipy.special.gamma(3.0/alpha)
+
+    aggdratio = np.sqrt(gam1) / np.sqrt(gam3)
+    bl = aggdratio * left_mean_sqrt
+    br = aggdratio * right_mean_sqrt
+
+    #mean parameter
+    N = (br - bl)*(gam2 / gam1)#*aggdratio
+    return (alpha, N, bl, br, left_mean_sqrt, right_mean_sqrt)
+
+def ggd_features(imdata):
+    nr_gam = 1/prec_gammas
+    sigma_sq = np.var(imdata)
+    E = np.mean(np.abs(imdata))
+    rho = sigma_sq/E**2
+    pos = np.argmin(np.abs(nr_gam - rho));
+    return gamma_range[pos], sigma_sq
+
+def paired_product(new_im):
+    shift1 = np.roll(new_im.copy(), 1, axis=1)
+    shift2 = np.roll(new_im.copy(), 1, axis=0)
+    shift3 = np.roll(np.roll(new_im.copy(), 1, axis=0), 1, axis=1)
+    shift4 = np.roll(np.roll(new_im.copy(), 1, axis=0), -1, axis=1)
+
+    H_img = shift1 * new_im
+    V_img = shift2 * new_im
+    D1_img = shift3 * new_im
+    D2_img = shift4 * new_im
+
+    return (H_img, V_img, D1_img, D2_img)
+
+
+def gen_gauss_window(lw, sigma):
+    sd = np.float32(sigma)
+    lw = int(lw)
+    weights = [0.0] * (2 * lw + 1)
+    weights[lw] = 1.0
+    sum = 1.0
+    sd *= sd
+    for ii in range(1, lw + 1):
+        tmp = np.exp(-0.5 * np.float32(ii * ii) / sd)
+        weights[lw + ii] = tmp
+        weights[lw - ii] = tmp
+        sum += 2.0 * tmp
+    for ii in range(2 * lw + 1):
+        weights[ii] /= sum
+    return weights
+
+def compute_image_mscn_transform(image, C=1, avg_window=None, extend_mode='constant'):
+    if avg_window is None:
+      avg_window = gen_gauss_window(3, 7.0/6.0)
+    assert len(np.shape(image)) == 2
+    h, w = np.shape(image)
+    mu_image = np.zeros((h, w), dtype=np.float32)
+    var_image = np.zeros((h, w), dtype=np.float32)
+    image = np.array(image).astype('float32')
+    scipy.ndimage.correlate1d(image, avg_window, 0, mu_image, mode=extend_mode)
+    scipy.ndimage.correlate1d(mu_image, avg_window, 1, mu_image, mode=extend_mode)
+    scipy.ndimage.correlate1d(image**2, avg_window, 0, var_image, mode=extend_mode)
+    scipy.ndimage.correlate1d(var_image, avg_window, 1, var_image, mode=extend_mode)
+    var_image = np.sqrt(np.abs(var_image - mu_image**2))
+    return (image - mu_image)/(var_image + C), var_image, mu_image
+
+
+def _niqe_extract_subband_feats(mscncoefs):
+    # alpha_m,  = extract_ggd_features(mscncoefs)
+    alpha_m, N, bl, br, lsq, rsq = aggd_features(mscncoefs.copy())
+    pps1, pps2, pps3, pps4 = paired_product(mscncoefs)
+    alpha1, N1, bl1, br1, lsq1, rsq1 = aggd_features(pps1)
+    alpha2, N2, bl2, br2, lsq2, rsq2 = aggd_features(pps2)
+    alpha3, N3, bl3, br3, lsq3, rsq3 = aggd_features(pps3)
+    alpha4, N4, bl4, br4, lsq4, rsq4 = aggd_features(pps4)
+    return np.array([alpha_m, (bl+br)/2.0,
+            alpha1, N1, bl1, br1,  # (V)
+            alpha2, N2, bl2, br2,  # (H)
+            alpha3, N3, bl3, bl3,  # (D1)
+            alpha4, N4, bl4, bl4,  # (D2)
+    ])
+
+def get_patches_train_features(img, patch_size, stride=8):
+    return _get_patches_generic(img, patch_size, 1, stride)
+
+def get_patches_test_features(img, patch_size, stride=8):
+    return _get_patches_generic(img, patch_size, 0, stride)
+
+def extract_on_patches(img, patch_size):
+    h, w = img.shape
+    patch_size = np.int_(patch_size)
+    patches = []
+    for j in range(0, h-patch_size+1, patch_size):
+        for i in range(0, w-patch_size+1, patch_size):
+            patch = img[j:j+patch_size, i:i+patch_size]
+            patches.append(patch)
+
+    patches = np.array(patches)
+    
+    patch_features = []
+    for p in patches:
+        patch_features.append(_niqe_extract_subband_feats(p))
+    patch_features = np.array(patch_features)
+
+    return patch_features
+
+def _get_patches_generic(img, patch_size, is_train, stride):
+    h, w = np.shape(img)
+    if h < patch_size or w < patch_size:
+        print("Input image is too small")
+        exit(0)
+
+    # ensure that the patch divides evenly into img
+    hoffset = (h % patch_size)
+    woffset = (w % patch_size)
+
+    if hoffset > 0: 
+        img = img[:-hoffset, :]
+    if woffset > 0:
+        img = img[:, :-woffset]
+
+
+    img = img.astype(np.float32)
+    img2 = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
+
+    mscn1, var, mu = compute_image_mscn_transform(img)
+    mscn1 = mscn1.astype(np.float32)
+
+    mscn2, _, _ = compute_image_mscn_transform(img2)
+    mscn2 = mscn2.astype(np.float32)
+
+
+    feats_lvl1 = extract_on_patches(mscn1, patch_size)
+    feats_lvl2 = extract_on_patches(mscn2, patch_size/2)
+
+    feats = np.hstack((feats_lvl1, feats_lvl2))# feats_lvl3))
+
+    return feats
+
+def niqe(inputImgData):
+
+    patch_size = 96
+    module_path = dirname(__file__)
+
+    # TODO: memoize
+    params = scipy.io.loadmat(join(module_path, 'data', 'niqe_image_params.mat'))
+    pop_mu = np.ravel(params["pop_mu"])
+    pop_cov = params["pop_cov"]
+
+
+    M, N = inputImgData.shape
+
+    # assert C == 1, "niqe called with videos containing %d channels. Please supply only the luminance channel" % (C,)
+    assert M > (patch_size*2+1), "niqe called with small frame size, requires > 192x192 resolution video using current training parameters"
+    assert N > (patch_size*2+1), "niqe called with small frame size, requires > 192x192 resolution video using current training parameters"
+
+
+    feats = get_patches_test_features(inputImgData, patch_size)
+    sample_mu = np.mean(feats, axis=0)
+    sample_cov = np.cov(feats.T)
+
+    X = sample_mu - pop_mu
+    covmat = ((pop_cov+sample_cov)/2.0)
+    pinvmat = scipy.linalg.pinv(covmat)
+    niqe_score = np.sqrt(np.dot(np.dot(X, pinvmat), X))
+
+    return niqe_score
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input_dir', type=str, help="input directory")
+    args = parser.parse_args()
+
+    obj = BRISQUE(url=False)
+    clip = CLIP('cuda', model_name='laion/CLIP-ViT-bigG-14-laion2B-39B-b160k')
+
+    input_dir = Path(args.input_dir)
+    if 'gaussiandreamer' in str(input_dir):
+        input_dir = input_dir / "gaussiandreamer-sd"
+    dir_list = list(input_dir.glob('*'))
+
+    niqe_all_results = []
+    BRISQUE_all_results = []
+    clip_all_results = []
+    for video_dir in tqdm(dir_list):
+        if video_dir.is_dir():
+            text_prompt = video_dir.name.replace('_', ' ')
+
+            with torch.no_grad():
+                ref_features = clip.encode_text(text_prompt)
+
+            if 'gaussiandreamer' in str(video_dir):
+                images_dir = video_dir / "save" / "it1200-test"
+                method = 'gaussiandreamer'
+            elif 'lgm' in str(video_dir):
+                images_dir = video_dir / video_dir.name
+                method = 'lgm'
+            elif 'director3d' in str(video_dir):
+                images_dir = video_dir / "0" / video_dir.name
+                method = 'director3d'
+            elif 'prometheus' in str(video_dir):
+                images_dir = video_dir / "0" / video_dir.name
+                method = f'prometheus_{input_dir.parent.name}'
+            else:
+                raise ValueError(f"Unknown video directory: {video_dir}")
+            images_list = list(images_dir.glob('*'))
+
+            niqe_results = []
+            BRISQUE_results = []
+            clip_results = []
+            for image_path in tqdm(images_list, desc=f"Processing {video_dir.name}"):
+                try:
+                    image_pil = Image.open(image_path)
+                except:
+                    continue
+                niqe_metric = niqe(np.array(image_pil.convert('LA'))[:,:,0] )
+                BRISQUE_metric = obj.score(np.array(image_pil))
+
+                with torch.no_grad():
+                    try:
+                        cur_features = clip.encode_image(image_pil)
+                    except:
+                        continue
+                similarity = (ref_features * cur_features).sum(dim=-1).mean().item()
+
+                niqe_results.append(niqe_metric)
+                
+                
+                if np.isnan(BRISQUE_metric):
+                    print(f"NaN found in {image_path}")
+                    continue
+                BRISQUE_results.append(BRISQUE_metric)
+                clip_results.append(similarity)
+
+            niqe_all_results.append(np.mean(niqe_results))
+            BRISQUE_all_results.append(np.mean(BRISQUE_results))
+            clip_all_results.append(np.mean(clip_results))
+    
+    average_niqe = np.mean(niqe_all_results)
+    average_BRISQUE = np.mean(BRISQUE_all_results)
+    average_clip = np.mean(clip_all_results)
+    
+    print(f"{method} Average NIQE: {average_niqe}")
+    print(f"{method} Average BRISQUE: {average_BRISQUE}")
+    print(f"{method} Average CLIP score: {average_clip}")
+    
+    output_metrics = {'average_niqe': average_niqe,
+                        'average_BRISQUE': average_BRISQUE,
+                        'average_CLIP_score': average_clip,
+                        'niqe_results': niqe_all_results,
+                        'BRISQUE_results': BRISQUE_all_results,
+                        'clip_results': clip_all_results}
+    with open(input_dir / 'all_metric.json', 'w') as f:
+        json.dump(output_metrics, f, indent=4)
+
+
+
+

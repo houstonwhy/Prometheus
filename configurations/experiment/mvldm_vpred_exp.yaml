@@ -1,0 +1,61 @@
+#24-11-20 exp12a MVLDM with SD21-base setting: v-prediction + scale0snr + continuous timestep_type t_cond=0.25log(sigma)
+defaults:
+  - base_pytorch
+
+# following raw LDM training settings  https://github.com/huggingface/diffusers/tree/main/examples/custom_diffusion
+image_size: 256
+noise_type: 'vanilla' # vanilla, diffusion_forcing
+scheduler_type: 'vprediction' # edm, vprediction, eprediction
+timestep_type: 'continuous' # discrete, continuous
+
+training:
+  module: prometheus.systems.MVLDMSystem
+  # precision: bf16-mixed
+  learning_rate: 1e-5 # same as sd14
+  # resume_weights_only: True
+  log_every_n_step: 1000
+  # gsdecoder_path: ${PRETRAINED_PATH}/epoch=215-step=215999.ckpt
+  gsdecoder_path: ${PRETRAINED_PATH}/gsdecoder/epoch=383-step=383999.ckpt
+  mvldm_path: ~
+  #sd_model_key: ${HF_PATH}/stabilityai/stable-diffusion-2-1
+  sd_model_key: ${HF_PATH}/stabilityai/stable-diffusion-2-1
+  #max_steps: 100000
+  steps_per_epoch: 1000
+  high_noise_level: False
+  weight_decay: 1e-4 #  same as sd14
+  betas: [0.9, 0.95] # same as sd14
+  accumulate_grad_batches: 1
+  single_view_num: 4 # num of 2d data per iteratiion
+  batch_size: 8 # full bs=8*8=64 by default
+  random_ref_num: False
+  num_input_views: 8 #
+  num_novel_views: 0
+  noise_type: 'view_cond' # vanilla, diffusion_forcing
+  # scheduler_type: 'vprediction' # 'ddim' or 'edm'
+  # prediction_type: 'sample' # ddim only support x0 prediction
+  # for view_c
+  num_workers: 12
+  num_ref_views: 0
+  num_pred_views: 8
+  use_gsdecoder: True
+  rendering_batch_size: 1
+
+  check_val_every_n_epoch: 100
+  resume_from_checkpoint: "latest"
+  text_to_3d_drop_text_p: 0.1
+  drop_pose_p: 0.1 # text_to_3d_drop_text_p * x
+  image_to_3d_drop_text_p: 0.1
+  image_to_3d_drop_image_p: 0.1
+
+validation:
+  batch_size: 4
+
+losses:
+  lambda_sv_latent_mse: 1.
+  lambda_sv_latent_mse_depth: 1.
+  lambda_mv_latent_mse: 1
+  lambda_mv_latent_mse_depth: 1.
+  #
+  lambda_gs_image_mse: 0.
+  lambda_gs_image_lpips: 0.
+  lambda_gs_depth: 0.

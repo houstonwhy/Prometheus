@@ -1,0 +1,26 @@
+module: prometheus.models.mv_sdspp_refiner.MultiviewSDSPPRefiner
+args:
+  # sd_model_key: '/data0/hf_weights/stable-diffusion-2-1'
+  # local_files_only: True
+  num_views: 4
+  # num_views: 1
+  # img_size: 512
+  img_size: 256
+  guidance_scale: 10.0
+  min_step_percent: 0.02 
+  max_step_percent: 0.75
+  num_densifications: 4
+  lr_scale: 0.25
+  lr_scale_end: 0.25
+  lrs: {'xyz': 0.0001, 'features': 0.01, 'opacity': 0.01, 'scales': 0.001, 'rotations': 0.01, 'embeddings': 0.01} 
+  use_lods: True
+  lambda_latent_sds: 1
+  lambda_image_sds: 0.1
+  lambda_mask_variation: 0.0
+  lambda_image_variation: 0.001
+  lambda_mask_saturation: 0.000
+  use_random_background_color: True
+  grad_clip: 1000
+  text_templete: $text$
+  negative_text_templete: ''
+  # negative_text_templete: 'unclear. noisy. point cloud. low-res.'

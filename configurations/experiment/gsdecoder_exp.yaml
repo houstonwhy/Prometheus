@@ -1,0 +1,48 @@
+defaults:
+  - base_pytorch
+image_size: 256
+# following raw SD-VQGAN training settings https://github.com/huggingface/diffusers/blob/main/examples/vqgan/train_vqgan.py
+training:
+  input_size: ${algorithm.network.image_size}
+  target_size: ${experiment.image_size}
+  module: prometheus.systems.GSDecoderSystem
+  precision: bf16-mixed
+  learning_rate: 1e-4 # same as vqgan
+  log_every_n_step: 1000
+  #max_steps: 100000
+  steps_per_epoch: 1000
+  weight_decay: 1e-2 # change to same as vqgan
+  betas: [0.9, 0.95] # change to same as vqgan
+  accumulate_grad_batches: 1
+  single_view_num: 1 # num of 2d data per iteratiion
+  batch_size: 4 # bs=8*4 by default
+  num_input_views: 4 #  too much？
+  num_novel_views: 4
+  gradient_clip_val: 1.0 # same as vqgan
+  check_val_every_n_epoch: 50
+  # resume_from_director3d: ${PRETRAINED_PATH}/model.ckpt
+  resume_from_director3d: ~
+  lpips_model_path: null
+  depth_model_path: ${HF_PATH}/depth-anything/Depth-Anything-V2-Small-hf
+  resume_from_checkpoint: "latest"
+  resume_weights_only: false
+  text_to_3d_drop_text_p: 0.1
+  image_to_3d_drop_text_p: 0.5
+  image_to_3d_drop_image_p: 0.1
+  shuffle: true
+  num_workers: 11
+
+validation:
+  shuffle: false
+  batch_size: 4
+  num_workers: 12
+
+losses:
+  lambda_sv_image_mse: 1
+  lambda_sv_image_lpips: 2
+  lambda_sv_depth: 1
+  
+  lambda_mv_image_mse: 1
+  lambda_mv_image_lpips: 2
+  lambda_mv_depth: 1
+  lambda_entropy: 1.

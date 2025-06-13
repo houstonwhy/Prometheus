@@ -1,0 +1,18 @@
+defaults:
+  - mvldm
+  
+network:
+  task_type: text_to_3d
+# module: prometheus.models.MVLDMModel
+
+# LATENT_CHANNEL: 8
+# LATENT_SIZE: 32
+# IMAGE_SIZE: 256
+
+# network:
+#   image_size: ${algorithm.IMAGE_SIZE}
+#   latent_size: ${algorithm.LATENT_SIZE}
+#   latent_channel: 4 # 4: RGBD 8 RGBD
+#   extra_latent_channel: 11 # 0:RGBD, 4: RGBD, 10: RGBD+Pose 11: RGBD+Pose+Mask
+#   disable_3d_attentions: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1] # 
+#   # disable_3d_attentions: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # 

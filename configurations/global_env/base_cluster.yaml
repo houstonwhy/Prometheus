@@ -1,0 +1,34 @@
+# @package _global_
+name: "prometheus_notebook"
+# GLOBAL DATASET PATH
+PCACHE_PATH: pcache://vilabpcacheproxyi-pool.cz50c.alipay.com:39999/mnt/antsys-vilab_datasets_pcache_datasets
+PCACHE_IMGNET_PATH: pcache://vilabpcacheproxyi-pool.cz50c.alipay.com:39999/mnt/antsys-vilab_datasets_imagenet_images
+PCACHE_smallMM_PATH: pcache://vilabpcacheproxyi-pool.cz50c.alipay.com:39999/mnt/bacba1e325b67e1aa48e7ff40f7e80bf
+# PCACHE_IMGNET_PATH: pcache://vilabpcacheproxyi-pool.cz50c.alipay.com:39999/mnt/antsys-vilab_datasets_imagenet_images
+# DATASET ROOT
+SAM_1B_PATH: ${PCACHE_PATH}/SAM_1B/
+JourneyDB_PATH: ${PCACHE_smallMM_PATH}/JourneyDB
+DL3DV_PATH: /input/datasets/DL3DV-10K/scene_images/
+MVImgNet_PATH: ${PCACHE_IMGNET_PATH}/mvimgnet/
+ACID_PATH: /input/datasets/acid
+RealEstate10K_PATH: /input/datasets/re10k
+UrbanGen_PATH: /input/yyb/datasets4training/urban/zip4train/urbangiraffe_kitti-360_semantic-kitti_nuscenes_waymo_train.zip
+Objaverse_PATH: ${PCACHE_PATH}/objaverse_render
+
+# METADATA ROOT
+SAM_1B_MATADATA_PATH: /input/yyb/PlatonicGen/data/SAM_1B/metadata/full
+MVImgNet_MATADATA_PATH: /input/yyb/PlatonicGen/data/MVImgNet/metadata
+DL3DV_MATADATA_PATH: /input/yyb/PlatonicGen/data/DL3DV-10K/metadata
+UrbanGen_MATADATA_PATH: /input/yyb/PlatonicGen/data/UrbanGen/metadata
+Objaverse_MATADATA_PATH: /input/yyb/PlatonicGen/data/Objaverse
+JourneyDB_MATADATA_PATH: /input/yyb/PlatonicGen/data/JourneyDB/metadata
+# GLOBAL WORKKDIR
+WORKDIR_PATH: /input/yyb/PlatonicGen
+output_dir: ${WORKDIR_PATH}/outputs
+PRETRAINED_PATH: ${WORKDIR_PATH}/pretrained
+HF_PATH: /input/yyb/huggingface
+
+
+wandb:
+  mode: dryrun # set wandb logging to online, offline or dryrun
+  project: ${name} # wandb project name; if not provided, defaults to root 

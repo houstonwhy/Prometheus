@@ -1,0 +1,5 @@
+defaults:
+  - mvldm
+
+network:
+  task_type: image_to_3d

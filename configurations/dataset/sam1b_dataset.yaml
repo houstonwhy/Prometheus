@@ -1,0 +1,24 @@
+defaults:
+  - base_dataset
+
+train:
+    module: prometheus.datasets.Text2ImageDataset
+    args:
+      root_dir: ${SAM_1B_PATH}
+      csv_file: ${SAM_1B_MATADATA_PATH}
+      resolution: ${image_size}
+      images_per_iter: ${experiment.training.single_view_num}
+      cfg_prob: 0.0
+      dataset_name: 'SAM1B'
+
+
+val:
+    module: prometheus.datasets.Text2ImageDataset
+    args:
+      root_dir: ${SAM_1B_PATH}
+      csv_file: ${SAM_1B_MATADATA_PATH}
+      resolution: ${image_size}
+      images_per_iter: ${experiment.training.single_view_num}
+      cfg_prob: 0.0
+      max_samples: 20000
+      dataset_name: 'SAM1B'

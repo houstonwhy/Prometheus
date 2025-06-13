@@ -1,0 +1,45 @@
+# config.yaml
+# configuration parsing starts here
+defaults:
+  - _self_
+  - experiment: dir3d_exp # experiment yaml file name in configurations/experiments folder [fixme]
+  - dataset: mvldm_dataset # dataset yaml file name in configurations/dataset folder [fixme]
+  - algorithm: dir3d_algo # algorithm yaml file name in configurations/algorithm folder [fixme]
+  - algorithm/algo3: dir3d_algo
+  - global_env: local_workstation # global_env yaml file name in configurations/cluster folder. Leave null for local compute
+
+# GLOBAL PATH
+output_dir: ./workdir
+
+PRETRAINED_PATH: ./pretrained
+HF_PATH: /data0/hf_weights
+
+SAM_1B_PATH: null
+DL3DV_PATH: null
+MVImgNet_PATH: null
+UrbanGen_PATH: null
+RealEstate10K_PATH: null
+
+SAM_1B_MATADATA_PATH: null
+DL3DV_MATADATA_PATH: null
+MVImgNet_MATADATA_PATH: null
+UrbanGen_MATADATA_PATH: null
+RealEstate10K_MATADATA_PATH: null
+
+save_ckpt_with_timestep: False
+image_size: 256
+name: "prometheus"
+tags: null
+debug: false # global debug flag will be passed into configuration of experiment, dataset and algorithm
+seed: 0
+
+resume: null # wandb run id to resume logging and loading checkpoint from
+load: null # wanmdb run id containing checkpoint or a path to a checkpoint file
+
+wandb:
+  entity: yangyuanbo04-zhejiang-university # wandb account name / organization name [fixme]
+  project: ${name} # wandb project name; if not provided, defaults to root folder name [fixme]
+  mode: online # set wandb logging to online, offline or dryrun
+     
+
+

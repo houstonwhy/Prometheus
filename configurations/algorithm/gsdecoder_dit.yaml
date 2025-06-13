@@ -1,0 +1,26 @@
+defaults:
+  - base_algo
+
+module: prometheus.models.GSDecoderModel
+
+network:
+  use_ema_norm: True
+  #local_files_only: True
+  #sd_model_key: ${HF_PATH}/stabilityai/stable-diffusion-2-1-base
+  decoder_type: 'vanilla' # vanilla(sd21), temproal(svd), dit(codvideoX)
+  use_taesd: False
+  image_size: 256
+  latent_size: 32
+  latent_channel: 4
+  extra_latent_channel: 10 # 0:RGBD, 4: RGBD, 10: RGBD+Pose 
+  unet_pretrained_path: ${HF_PATH}/stabilityai/stable-diffusion-2-1-base/v2-1_512-ema-pruned.ckpt
+
+  use_cross_view_dit: True
+  cross_view_dit: #from raydiff
+    width: 16
+    depth: 16
+    in_channels: 392
+    out_channels: 392
+    hidden_size: 1152
+    max_num_images: 8
+    P: 1

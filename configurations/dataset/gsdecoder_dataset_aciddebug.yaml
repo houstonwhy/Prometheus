@@ -1,0 +1,70 @@
+defaults:
+  - base_dataset
+
+train:
+  module: prometheus.datasets.JointDataset
+  args:
+    datasets: 
+      - 
+        module: prometheus.datasets.ProbDataset
+        args:
+          datasets: 
+            - 
+              module: prometheus.datasets.RealEstate10KDataset
+              args:
+                root_dir: ${ACID_PATH}/train
+                dataset_name: 'ACID'
+                annotation_path: null
+                img_size: ${image_size}
+                normalized_cameras: True
+                use_caption: True
+                drop_text_p: 1.
+                num_input_views: ${experiment.training.num_input_views}
+                num_novel_views: ${experiment.training.num_novel_views}
+                sample_rate: 200
+                scene_scale_threshold: .1
+          probs: null
+      - 
+        module: prometheus.datasets.Text2ImageDataset
+        args:
+          root_dir: ${SAM_1B_PATH}
+          csv_file: ${SAM_1B_MATADATA_PATH}
+          resolution: ${image_size}
+          images_per_iter: ${experiment.training.single_view_num}
+          cfg_prob: 0.1
+          dataset_name: 'SAM1B'
+
+
+val:
+  module: prometheus.datasets.JointDataset
+  args:
+    datasets: 
+      - 
+        module: prometheus.datasets.ProbDataset
+        args:
+          datasets:
+            - 
+              module: prometheus.datasets.RealEstate10KDataset
+              args:
+                root_dir: ${ACID_PATH}/train
+                dataset_name: 'ACID'
+                annotation_path: null
+                img_size: ${image_size}
+                normalized_cameras: True
+                use_caption: True
+                drop_text_p: 1.
+                num_input_views: ${experiment.training.num_input_views}
+                num_novel_views: ${experiment.training.num_novel_views}
+                sample_rate: 200
+                scene_scale_threshold: .1
+          probs: null
+      - 
+        module: prometheus.datasets.Text2ImageDataset
+        args:
+          root_dir: ${SAM_1B_PATH}
+          csv_file: ${SAM_1B_MATADATA_PATH}
+          resolution: ${image_size}
+          images_per_iter: ${experiment.training.single_view_num}
+          cfg_prob: 0.1
+          max_samples: 20000
+          dataset_name: 'SAM1B'

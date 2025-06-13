@@ -1,0 +1,32 @@
+defaults:
+  - base_dataset
+
+train:
+    module: prometheus.datasets.RealEstate10KDataset
+    args:
+      root_dir: ${RealEstate10K_PATH}/train
+      dataset_name: 'RealEstate10K'
+      annotation_path: null
+      img_size: ${image_size}
+      normalized_cameras: True
+      use_caption: False
+      drop_text_p: 1.
+      num_input_views: ${experiment.training.num_input_views}
+      num_novel_views: ${experiment.training.num_novel_views}
+      sample_rate: -1
+      scene_scale_threshold: .1
+
+val:
+    module: prometheus.datasets.RealEstate10KDataset
+    args:
+      root_dir: ${RealEstate10K_PATH}/test
+      dataset_name: 'RealEstate10K'
+      annotation_path: null
+      img_size: ${image_size}
+      normalized_cameras: True
+      use_caption: False
+      drop_text_p: 1.
+      num_input_views: ${experiment.training.num_input_views}
+      num_novel_views: ${experiment.training.num_novel_views}
+      sample_rate: -1
+      scene_scale_threshold: .1

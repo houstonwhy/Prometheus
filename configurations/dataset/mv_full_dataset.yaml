@@ -1,0 +1,236 @@
+defaults:
+  - base_dataset
+
+base_view_sample_rate: 8
+
+full:
+    module: prometheus.datasets.ProbDataset
+    args:
+      datasets:
+        - 
+          module: prometheus.datasets.DL3DV10KDataset
+          args:
+            root_dir: ${DL3DV_PATH}
+            annotation_path: ${DL3DV_MATADATA_PATH}/dl3dv_full.pkl
+            #annotation_meta: metadata/dl3dv_val.pkl
+            img_size: ${image_size}
+            normalized_cameras: True
+            use_caption: False
+            drop_text_p: 0.
+            num_input_views: ${experiment.training.num_input_views}
+            num_novel_views: ${experiment.training.num_novel_views}
+            sample_rate: 16
+        -
+          module: prometheus.datasets.MVImgNetDataset
+          args:
+              root_dir: ${MVImgNet_PATH}
+              annotation_path: ${MVImgNet_MATADATA_PATH}/mvimgnet_full_nocaption_new.pkl
+              #annotation_meta: metadata/mvimgnet_train_nocaption.pkl
+              img_size: ${image_size}
+              normalized_cameras: True
+              use_caption: False
+              drop_text_p: 1.
+              num_input_views: ${experiment.training.num_input_views}
+              num_novel_views: ${experiment.training.num_novel_views}
+              sample_rate: 6
+        -
+          module: prometheus.datasets.UrbanGenDataset
+          args:
+            root_dir: ${UrbanGen_PATH}
+            annotation_path: ${UrbanGen_MATADATA_PATH}/urbangen_full_nocaption.pkl
+            #annotation_meta: metadata/dl3dv_train.pkl
+            img_size: ${image_size}
+            normalized_cameras: True
+            use_caption: False
+            drop_text_p: 1.
+            num_input_views: ${experiment.training.num_input_views}
+            num_novel_views: ${experiment.training.num_novel_views}
+            sample_rate: 8
+            # max_samples: 1000
+        - 
+          module: prometheus.datasets.RealEstate10KDataset
+          args:
+            root_dir: ${RealEstate10K_PATH}/train
+            dataset_name: 'RealEstate10K'
+            annotation_path: null
+            img_size: ${image_size}
+            normalized_cameras: True
+            use_caption: False
+            drop_text_p: 1.
+            num_input_views: ${experiment.training.num_input_views}
+            num_novel_views: ${experiment.training.num_novel_views}
+            sample_rate: 200
+        - 
+          module: prometheus.datasets.RealEstate10KDataset
+          args:
+            root_dir: ${RealEstate10K_PATH}/test
+            dataset_name: 'RealEstate10K'
+            annotation_path: null
+            img_size: ${image_size}
+            normalized_cameras: True
+            use_caption: False
+            drop_text_p: 1.
+            num_input_views: ${experiment.training.num_input_views}
+            num_novel_views: ${experiment.training.num_novel_views}
+            sample_rate: 200
+        - 
+          module: prometheus.datasets.RealEstate10KDataset
+          args:
+            root_dir: ${ACID_PATH}/train
+            dataset_name: 'ACID'
+            annotation_path: null
+            img_size: ${image_size}
+            normalized_cameras: True
+            use_caption: False
+            drop_text_p: 1.
+            num_input_views: ${experiment.training.num_input_views}
+            num_novel_views: ${experiment.training.num_novel_views}
+            sample_rate: 200
+        - 
+          module: prometheus.datasets.RealEstate10KDataset
+          args:
+            root_dir: ${ACID_PATH}/validation
+            dataset_name: 'ACID'
+            annotation_path: null
+            img_size: ${image_size}
+            normalized_cameras: True
+            use_caption: False
+            drop_text_p: 1.
+            num_input_views: ${experiment.training.num_input_views}
+            num_novel_views: ${experiment.training.num_novel_views}
+            sample_rate: 200
+      probs: null
+
+dl3dv:
+    module: prometheus.datasets.DL3DV10KDataset
+    args:
+      root_dir: ${DL3DV_PATH}
+      annotation_path: ${DL3DV_MATADATA_PATH}/dl3dv_full_miniclip.pkl
+      #annotation_meta: metadata/dl3dv_val.pkl
+      img_size: ${image_size}
+      normalized_cameras: True
+      use_caption: False
+      num_input_views: ${experiment.training.num_input_views}
+      num_novel_views: ${experiment.training.num_novel_views}
+      sample_rate: 16
+
+mvimgnet:
+    module: prometheus.datasets.MVImgNetDataset
+    args:
+        root_dir: ${MVImgNet_PATH}
+        annotation_path: ${MVImgNet_MATADATA_PATH}/mvimgnet_full_nocaption_new.pkl
+        #annotation_meta: metadata/mvimgnet_train_nocaption.pkl
+        img_size: ${image_size}
+        normalized_cameras: True
+        use_caption: False
+        drop_text_p: 1.
+        num_input_views: ${experiment.training.num_input_views}
+        num_novel_views: ${experiment.training.num_novel_views}
+        sample_rate: 6
+
+urbangen:
+    module: prometheus.datasets.UrbanGenDataset
+    args:
+      root_dir: ${UrbanGen_PATH}
+      annotation_path: ${UrbanGen_MATADATA_PATH}/urbangen_full_nocaption.pkl
+      #annotation_meta: metadata/dl3dv_train.pkl
+      img_size: ${image_size}
+      normalized_cameras: True
+      use_caption: False
+      drop_text_p: 1.
+      num_input_views: ${experiment.training.num_input_views}
+      num_novel_views: ${experiment.training.num_novel_views}
+      sample_rate: 4
+      # max_samples: 1000
+
+re10k:
+  module: prometheus.datasets.RealEstate10KDataset
+  args:
+    root_dir: ${RealEstate10K_PATH}/train
+    dataset_name: 'RealEstate10K'
+    annotation_path: null
+    img_size: ${image_size}
+    normalized_cameras: True
+    use_caption: False
+    drop_text_p: 1.
+    num_input_views: ${experiment.training.num_input_views}
+    num_novel_views: ${experiment.training.num_novel_views}
+    sample_rate: 200
+
+acid:
+  module: prometheus.datasets.RealEstate10KDataset
+  args:
+    root_dir: ${ACID_PATH}/train
+    dataset_name: 'ACID'
+    annotation_path: null
+    img_size: ${image_size}
+    normalized_cameras: True
+    use_caption: False
+    drop_text_p: 1.
+    num_input_views: ${experiment.training.num_input_views}
+    num_novel_views: ${experiment.training.num_novel_views}
+    sample_rate: 200
+
+
+# re10k:
+#     module: prometheus.datasets.ProbDataset
+#     args:
+#       datasets:
+#         - 
+#           module: prometheus.datasets.RealEstate10KDataset
+#           args:
+#             root_dir: ${RealEstate10K_PATH}/train
+#             dataset_name: 'RealEstate10K'
+#             annotation_path: null
+#             img_size: ${image_size}
+#             normalized_cameras: True
+#             use_caption: False
+#             drop_text_p: 1.
+#             num_input_views: ${experiment.training.num_input_views}
+#             num_novel_views: ${experiment.training.num_novel_views}
+#             sample_rate: 200
+#         - 
+#           module: prometheus.datasets.RealEstate10KDataset
+#           args:
+#             root_dir: ${RealEstate10K_PATH}/test
+#             dataset_name: 'RealEstate10K'
+#             annotation_path: null
+#             img_size: ${image_size}
+#             normalized_cameras: True
+#             use_caption: False
+#             drop_text_p: 1.
+#             num_input_views: ${experiment.training.num_input_views}
+#             num_novel_views: ${experiment.training.num_novel_views}
+#             sample_rate: 200
+#         - 
+#           module: prometheus.datasets.RealEstate10KDataset
+#           args:
+#             root_dir: ${ACID_PATH}/train
+#             dataset_name: 'ACID'
+#             annotation_path: null
+#             img_size: ${image_size}
+#             normalized_cameras: True
+#             use_caption: False
+#             drop_text_p: 1.
+#             num_input_views: ${experiment.training.num_input_views}
+#             num_novel_views: ${experiment.training.num_novel_views}
+#             sample_rate: 200
+#         - 
+#           module: prometheus.datasets.RealEstate10KDataset
+#           args:
+#             root_dir: ${ACID_PATH}/validation
+#             dataset_name: 'ACID'
+#             annotation_path: null
+#             img_size: ${image_size}
+#             normalized_cameras: True
+#             use_caption: False
+#             drop_text_p: 1.
+#             num_input_views: ${experiment.training.num_input_views}
+#             num_novel_views: ${experiment.training.num_novel_views}
+#             sample_rate: 200
+#       probs: null
+
+objaverse:
+    module: prometheus.datasets.UrbanGenDataset
+    args:
+      root_dir: ${UrbanGen_PATH}

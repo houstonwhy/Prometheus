@@ -1,0 +1,128 @@
+defaults:
+  - base_dataset
+
+normalized_cameras: True
+use_caption: True
+num_input_views: ${experiment.training.num_input_views}
+num_novel_views: ${experiment.training.num_novel_views}
+image_size: ${experiment.image_size}
+
+train:
+  module: prometheus.datasets.JointDataset
+  args:
+    datasets: 
+      - 
+        module: prometheus.datasets.ProbDataset
+        args:
+          datasets:
+            - 
+              module: prometheus.datasets.ObjaverseDataset
+              args:
+                root_dir: ${Objaverse_PATH}
+                metadata_dir: ${Objaverse_MATADATA_PATH}
+                img_size: ${dataset.image_size}
+                normalized_cameras: ${dataset.normalized_cameras}
+                use_caption: ${dataset.use_caption}
+                num_input_views: ${dataset.num_input_views}
+                num_novel_views: ${dataset.num_novel_views}
+                sample_rate: -1
+            - 
+              module: prometheus.datasets.DL3DV10KDataset
+              args:
+                root_dir: ${DL3DV_PATH}
+                annotation_path: ${DL3DV_MATADATA_PATH}/dl3dv_train.pkl
+                img_size: ${dataset.image_size}
+                normalized_cameras: ${dataset.normalized_cameras}
+                use_caption: ${dataset.use_caption}
+                num_input_views: ${dataset.num_input_views}
+                num_novel_views: ${dataset.num_novel_views}
+                sample_rate: 7
+            - 
+              module: prometheus.datasets.MVImgNetDataset
+              args:
+                root_dir: ${MVImgNet_PATH}
+                annotation_path: ${MVImgNet_MATADATA_PATH}/mvimgnet_train_nocaption_new.pkl
+                img_size: ${dataset.image_size}
+                normalized_cameras: ${dataset.normalized_cameras}
+                use_caption: ${dataset.use_caption}
+                num_input_views: ${dataset.num_input_views}
+                num_novel_views: ${dataset.num_novel_views}
+                sample_rate: -1
+            -
+              module: prometheus.datasets.UrbanGenDataset
+              args:
+                root_dir: ${UrbanGen_PATH}
+                annotation_path: ${UrbanGen_MATADATA_PATH}/urbangen_full_nocaption.pkl
+                #annotation_meta: metadata/dl3dv_train.pkl
+                img_size: ${dataset.image_size}
+                normalized_cameras: ${dataset.normalized_cameras}
+                use_caption: ${dataset.use_caption}
+                num_input_views: ${dataset.num_input_views}
+                num_novel_views: ${dataset.num_novel_views}
+                sample_rate: 4
+                scene_scale_threshold: 1.
+            - 
+              module: prometheus.datasets.RealEstate10KDataset
+              args:
+                root_dir: ${RealEstate10K_PATH}/train
+                dataset_name: 'RealEstate10K'
+                annotation_path: null
+                img_size: ${dataset.image_size}
+                normalized_cameras: ${dataset.normalized_cameras}
+                use_caption: ${dataset.use_caption}
+                num_input_views: ${dataset.num_input_views}
+                num_novel_views: ${dataset.num_novel_views}
+                sample_rate: 200
+                scene_scale_threshold: .01
+            - 
+              module: prometheus.datasets.RealEstate10KDataset
+              args:
+                root_dir: ${ACID_PATH}/train
+                dataset_name: 'ACID'
+                annotation_path: null
+                img_size: ${dataset.image_size}
+                normalized_cameras: ${dataset.normalized_cameras}
+                use_caption: ${dataset.use_caption}
+                num_input_views: ${dataset.num_input_views}
+                num_novel_views: ${dataset.num_novel_views}
+                sample_rate: 200
+                scene_scale_threshold: .01
+          # probs: [0.2, 0.2, 0.25, 0.1, 0.2, 0.05]
+          probs: [0., 0.25, 0.4, 0.0, 0.25, 0.10]
+      - 
+        module: prometheus.datasets.ProbDataset
+        args:
+          datasets:
+            -
+              module: prometheus.datasets.Text2ImageDataset
+              args:
+                root_dir: ${SAM_1B_PATH}
+                csv_file: ${SAM_1B_MATADATA_PATH}
+                resolution: ${dataset.image_size}
+                images_per_iter: ${experiment.training.single_view_num}
+                cfg_prob: 0.0
+                dataset_name: 'SAM1B'
+            -
+              module: prometheus.datasets.Text2ImageDataset
+              args:
+                root_dir: ${JourneyDB_PATH}
+                csv_file: ${JourneyDB_MATADATA_PATH}
+                resolution: ${dataset.image_size}
+                images_per_iter: ${experiment.training.single_view_num}
+                cfg_prob: 0.0
+                dataset_name: 'JourneyDB'
+          probs: [0.7,0.3]
+
+
+val:
+    module: prometheus.datasets.MVImgNetDataset
+    args:
+      root_dir: ${MVImgNet_PATH}
+      annotation_path: ${MVImgNet_MATADATA_PATH}/mvimgnet_val_nocaption_new.pkl
+      #annotation_meta: metadata/mvimgnet_val_nocaption.pkl
+      img_size: ${dataset.image_size}
+      normalized_cameras: ${dataset.normalized_cameras}
+      use_caption: ${dataset.use_caption}
+      num_input_views: ${dataset.num_input_views}
+      num_novel_views: ${dataset.num_novel_views}
+      sample_rate: 4

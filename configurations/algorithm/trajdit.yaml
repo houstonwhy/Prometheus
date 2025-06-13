@@ -1,0 +1,26 @@
+defaults:
+  - base_algo
+
+network:
+  local_files_only: True
+  use_taesd: False
+  image_size: 256
+  latent_size: 32
+  latent_channel: 4
+  extra_latent_channel: 508
+  # num_input_views: 8
+  # num_novel_views: 8
+  sd_model_key: ${HF_PATH}/stabilityai/stable-diffusion-2-1-base
+  unet_pretrained_path: ${HF_PATH}/stabilityai/stable-diffusion-2-1-base/v2-1_512-ema-pruned.ckpt
+
+  cdm:
+    hidden_size: 512
+    num_blocks: 8
+    num_tokens: 29
+    block_args:
+      num_heads: 8
+      mlp_ratio: 4
+
+  # decoder3d:
+  #   hidden_dims: [768, 512, 384, 256]
+  #   num_repeats: 2

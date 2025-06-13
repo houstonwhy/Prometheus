@@ -1,0 +1,36 @@
+defaults:
+  - base_algo
+
+module: prometheus.models.MVLDMModel
+task_type: text_to_3d
+LATENT_CHANNEL: 8
+LATENT_SIZE: 32
+IMAGE_SIZE: 256
+
+
+network:
+  image_encoder_path: ${PRETRAINED_PATH}/clip_image
+  image_size: ${algorithm.IMAGE_SIZE}
+  latent_size: ${algorithm.LATENT_SIZE}
+  latent_channel: 4 # 4: RGBD 8 RGBD
+  extra_latent_channel: 11 # 0:RGBD, 4: RGBD, 10: RGBD+Pose 11: RGBD+Pose+Mask
+
+  unet:
+    use_checkpoint: True
+    image_size: 32 # unused
+    in_channels: 4
+    out_channels: 4
+    model_channels: 320
+    attention_resolutions: [ 4, 2, 1 ]
+    num_res_blocks: 2
+    channel_mult: [ 1, 2, 4, 4]
+    num_head_channels: 64 # need to fix for flash-attn
+    use_spatial_transformer: True
+    use_linear_in_transformer: True
+    transformer_depth: 1
+    context_dim: 1024 # ?
+    legacy: False
+    use_fp16: True
+    disable_3d_attentions: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1] # 
+
+

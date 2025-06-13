@@ -1,0 +1,66 @@
+# This will be passed as the cfg to Algo.__init__(cfg) of your algorithm class
+
+
+module: null
+
+
+network:
+  debug: ${debug} # inherited from configurations/config.yaml
+  local_files_only: True
+  sd_model_key:  ${experiment.training.sd_model_key}
+  unet_pretrained_path: ~
+  decoder_type: 'vanilla' # vanilla(sd21), temproal(svd), dit(codvideoX)
+  raydiff_pretrained_path: ${PRETRAINED_PATH}/raydiff/co3d_diffusion/checkpoints/ckpt_00450000.pth
+  
+  use_taesd: False
+  image_size: 256
+  latent_size: 32
+  latent_channel: 4
+  extra_latent_channel: 10 # 0:RGBD, 4: RGBD, 10: RGBD+Pose 
+  use_cross_view_dit: True
+  unet:
+    use_checkpoint: True
+    image_size: 32 # unused
+    in_channels: 4
+    out_channels: 4
+    model_channels: 320
+    attention_resolutions: [ 4, 2, 1 ]
+    num_res_blocks: 2
+    channel_mult: [ 1, 2, 4, 4 ]
+    num_head_channels: 64 # need to fix for flash-attn
+    use_spatial_transformer: True
+    use_linear_in_transformer: True
+    transformer_depth: 1
+    context_dim: 1024 # ?
+    legacy: False
+    use_fp16: True
+
+  vae:
+    embed_dim: 4
+    ddconfig:
+      double_z: true
+      z_channels: 4
+      resolution: 256
+      in_channels: 3
+      out_ch: 3
+      ch: 128
+      ch_mult:
+        - 1
+        - 2
+        - 4
+        - 4
+      num_res_blocks: 2
+      attn_resolutions: []
+      dropout: 0.0
+      use_fp16: True
+
+  gs_converter:
+    gs_convert_mode: mvsplat # mvsplat, gslrm, director3d
+    s_max: 1.0
+    s_min: 0.001
+    z_far: 100.
+    z_near: 0.01
+
+  gs_renderer:
+    sh_degree: 0 
+    background: [1, 1, 1] # white bg when inference
