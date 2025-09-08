@@ -82,10 +82,9 @@ All codes are succefully tested on:
     
     ```bash
     PRETRAINED_PATH=./pretrained/
-    # Download the pretrained raydiff as the initialization of GSDecoder (Optional) or set in 
-    RayDiff: https://github.com/jasonyzhang/RayDiffusion
+    # Download the pretrained raydiff as the initialization of GSDecoder (Optional) or set in RayDiff: https://github.com/jasonyzhang/RayDiffusion
     gdown https://drive.google.com/uc\?id\=1anIKsm66zmDiFuo8Nmm1HupcitM6NY7e
-    unzip models.zip ${PRETRAINED_PATH}/
+    unzip models.zip -d ${PRETRAINED_PATH}/
     ```
 
 6. Download pretrained Prometheus Checkpoint from [HuggingFace](https://huggingface.co/sumyyyyy/Prometheus_ckpt) to `./pretrained/full.ckpt`
