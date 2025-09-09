@@ -106,7 +106,7 @@ Or from text prompt input
 python inference.py --ckpt-path="pretrained/full.ckpt" \
                 --prompts="A large, abandoned factory repurposed as an urban exploration site, with large, empty spaces and rusting machinery." \ 
                 --seed=42 \
-                --devive="cuda:0" \
+                --device="cuda:0" \
                 --out_dir="outputs/inference_results"
 ```
 
