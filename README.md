@@ -91,7 +91,7 @@ All codes are succefully tested on:
 
 ## 🚀 Inference
 
-Inference from text prompt input
+Inference from prompt file
 
 ```bash
 python inference.py --ckpt-path="pretrained/full.ckpt" \
@@ -100,7 +100,7 @@ python inference.py --ckpt-path="pretrained/full.ckpt" \
                 --out_dir="outputs/inference_results"
 ```
 
-Or from prompt file
+Or from text prompt input
 
 ```bash
 python inference.py --ckpt-path="pretrained/full.ckpt" \
@@ -110,7 +110,7 @@ python inference.py --ckpt-path="pretrained/full.ckpt" \
                 --out_dir="outputs/inference_results"
 ```
 
-Eval on our Text-to-3D scene generation benchmatk
+Eval on our Text-to-3D scene generation benchmark
 
 ```bash
 python eval.py --ckpt-path="pretrained/full.ckpt" \
